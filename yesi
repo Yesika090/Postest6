@@ -1,0 +1,76 @@
+1.Buat Database
+
+CREATE DATABASE PT1_NIM;
+-- Contoh:
+CREATE DATABASE PT1_71240000;
+USE PT1_71240000;
+
+
+2.Buat Tabel Konser dan Artis
+-- Tabel Konser
+CREATE TABLE Konser (
+  id_konser CHAR(4) NOT NULL,
+  nama_konser VARCHAR(50) NOT NULL,
+  lokasi VARCHAR(50) NOT NULL,
+  PRIMARY KEY (id_konser)
+);
+
+-- Tabel Artis
+CREATE TABLE Artis (
+  id_artis CHAR(4) NOT NULL,
+  nama_artis VARCHAR(50) NOT NULL,
+  id_konser CHAR(4),
+  genre VARCHAR(30) NOT NULL,
+  PRIMARY KEY (id_artis),
+  CONSTRAINT KonserSeruBoss FOREIGN KEY (id_konser) REFERENCES Konser(id_konser)
+);
+
+
+3.Insert Data ke Tabel
+
+-tabel Konser
+INSERT INTO Konser (id_konser, nama_konser, lokasi)
+VALUES 
+('K001', 'Summer Beats', 'Jakarta'),
+('K002', 'SoundWave', 'Bandung'),
+('K003', 'RockNation', 'Surabaya'),
+('K004', 'IndieVibe', 'Yogyakarta');
+
+
+-tabel Artis
+INSERT INTO Artis (id_artis, nama_artis, id_konser, genre)
+VALUES
+('A001', 'Luna Melody', 'K001', 'Pop'),
+('A002', 'Echo Band', 'K002', 'Rock'),
+('A003', 'DJ Nova', 'K001', 'EDM'),
+('A004', 'Skyline', NULL, 'Indie');
+
+
+-tampilkan
+SELECT * FROM Konser;
+SELECT * FROM Artis;
+
+4.Tampilkan semua artis beserta nama konser tempat mereka tampil, termasuk artis yang belum terdaftar di konser mana pun
+SELECT 
+  Artis.nama_artis, 
+  Konser.nama_konser
+FROM Artis
+LEFT JOIN Konser ON Artis.id_konser = Konser.id_konser;
+
+
+5.Tampilkan nama_artis, genre, dan nama_konser untuk semua artis yang tampil pada konser tertentu
+
+SELECT 
+  Artis.nama_artis, 
+  Artis.genre, 
+  Konser.nama_konser
+FROM Artis
+INNER JOIN Konser ON Artis.id_konser = Konser.id_konser;
+
+
+6.ampilkan artis yang belum memiliki konser terdaftar
+SELECT 
+  Artis.nama_artis
+FROM Artis
+LEFT JOIN Konser ON Artis.id_konser = Konser.id_konser
+WHERE Konser.id_konser IS NULL;
