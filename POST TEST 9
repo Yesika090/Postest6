@@ -1,0 +1,34 @@
+NO 1
+SELECT 
+    p.nama_produk, 
+    k.nama_kategori, 
+    p.harga
+FROM produk p
+JOIN kategori k ON p.id_kategori = k.id_kategori
+WHERE k.nama_kategori LIKE '%Elektronik%'
+  AND p.harga < 5000000;
+
+NO 2
+SELECT 
+    CONCAT(UPPER(nama_reviewer), ' - ', LOWER(komentar)) AS info_reviewer
+FROM review;
+
+NO 3
+SELECT 
+    nama_reviewer,
+    tgl_review,
+    DATE_FORMAT(tgl_review, '%W, %e %M %Y') AS hari_review
+FROM review;
+
+
+NO 4
+SELECT 
+    nama_produk,
+    CASE
+        WHEN harga < 100000 THEN 'Produk Ekonomis'
+        WHEN harga BETWEEN 100000 AND 1000000 THEN 'Produk Standar'
+        ELSE 'Produk Premium'
+    END AS kategori_harga
+FROM produk;
+
+
