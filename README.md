@@ -1,44 +1,40 @@
 Nomor 1
 
 SELECT 
-    s.nama_studio AS "Nama Studio",
-    SUM(p.penjualan_tiket) AS "Total Penjualan Tiket"
-FROM studio s
-JOIN film f ON s.id_studio = f.id_studio
-JOIN penayangan p ON f.id_film = p.id_film
-GROUP BY s.nama_studio
-ORDER BY SUM(p.penjualan_tiket) DESC;
+    b.nama_barang,
+    (SELECT nama_kategori 
+     FROM kategori 
+     WHERE kategori.kategori_id = b.kategori_id) AS kategori
+FROM barang b
+WHERE b.id_barang IN (SELECT id_barang FROM penjualan)
+ORDER BY kategori;
+
 
 
 nomor 2
 
-SELECT 
-    genre AS "Genre",
-    AVG(durasi) AS "Rata-rata Durasi"
-FROM film
-GROUP BY genre
-ORDER BY AVG(durasi) ASC;
+SELECT nama_toko
+FROM toko
+WHERE id_toko IN (
+    SELECT id_toko FROM penjualan 
+    WHERE id_barang IN (SELECT id_barang FROM barang WHERE kategori_id = 1)
+)
+AND id_toko IN (
+    SELECT id_toko FROM penjualan 
+    WHERE id_barang IN (SELECT id_barang FROM barang WHERE kategori_id = 2)
+);
+
 
 
 nomor 3
 
-SELECT 
-    tahun_rilis AS "Tahun Rilis",
-    COUNT(*) AS "Jumlah Film"
-FROM film
-GROUP BY tahun_rilis
-ORDER BY tahun_rilis DESC;
+SELECT nama_toko
+FROM toko
+WHERE id_toko IN (
+    SELECT p.id_toko
+    FROM penjualan p
+    WHERE (p.jumlah_terjual * 
+          (SELECT harga_barang FROM barang WHERE id_barang = p.id_barang)
+          ) <= 1000000
+);
 
-
-
-
-nomor 4
-
-SELECT 
-    s.nama_studio AS "Nama Studio",
-    AVG(f.rating) AS "Rata-rata Rating"
-FROM studio s
-JOIN film f ON s.id_studio = f.id_studio
-GROUP BY s.nama_studio
-HAVING AVG(f.rating) > 8
-ORDER BY AVG(f.rating) DESC;
