@@ -1,40 +1,90 @@
-Nomor 1
+NO 1
 
-SELECT 
-    b.nama_barang,
-    (SELECT nama_kategori 
-     FROM kategori 
-     WHERE kategori.kategori_id = b.kategori_id) AS kategori
-FROM barang b
-WHERE b.id_barang IN (SELECT id_barang FROM penjualan)
-ORDER BY kategori;
+Query Trigger :
+
+DELIMITER $$
+
+CREATE TRIGGER after_topup_insert
+AFTER INSERT ON topup_saldo
+FOR EACH ROW
+BEGIN
+    UPDATE pengguna
+    SET saldo = saldo + NEW.jumlah_topup
+    WHERE id_user = NEW.id_user;
+END$$
+
+DELIMITER ;
+
+Query Testing (Insert Top Up) :
+
+INSERT INTO topup_saldo (id_user, jumlah_topup, metode_bayar, waktu_topup)
+VALUES (2, 100000, 'Transfer Bank', NOW());
+
+Query Cek Sebelum & Sesudah :
+
+SELECT * FROM pengguna WHERE id_user = 2;
 
 
+NO 2
 
-nomor 2
+Query Trigger :
 
-SELECT nama_toko
-FROM toko
-WHERE id_toko IN (
-    SELECT id_toko FROM penjualan 
-    WHERE id_barang IN (SELECT id_barang FROM barang WHERE kategori_id = 1)
-)
-AND id_toko IN (
-    SELECT id_toko FROM penjualan 
-    WHERE id_barang IN (SELECT id_barang FROM barang WHERE kategori_id = 2)
-);
+DELIMITER $$
+
+CREATE TRIGGER before_pengguna_update
+BEFORE UPDATE ON pengguna
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_aktivitas (id_user, aktivitas, data_lama, waktu_kejadian)
+    VALUES (
+        OLD.id_user,
+        'Update Data User',
+        CONCAT('Nama: ', OLD.nama_user, ', HP: ', OLD.nomor_hp),
+        NOW()
+    );
+END$$
+
+DELIMITER ;
+
+Query Testing (Update Data) :
+
+UPDATE pengguna
+SET nomor_hp = '085555555555'
+WHERE id_user = 1;
+
+Query Cek Log :
+
+SELECT * FROM log_aktivitas;
 
 
+NO 3 
 
-nomor 3
+Query Trigger :
 
-SELECT nama_toko
-FROM toko
-WHERE id_toko IN (
-    SELECT p.id_toko
-    FROM penjualan p
-    WHERE (p.jumlah_terjual * 
-          (SELECT harga_barang FROM barang WHERE id_barang = p.id_barang)
-          ) <= 1000000
-);
+DELIMITER $$
+
+CREATE TRIGGER before_pengguna_delete
+BEFORE DELETE ON pengguna
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_aktivitas (id_user, aktivitas, data_lama, waktu_kejadian)
+    VALUES (
+        OLD.id_user,
+        'Hapus Akun User',
+        CONCAT('User ', OLD.nama_user, ' dengan saldo terakhir ', OLD.saldo, ' telah dihapus'),
+        NOW()
+    );
+END$$
+
+Query Testing (Hapus User) :
+
+DELIMITER ;
+
+DELETE FROM pengguna
+WHERE id_user = 3;
+
+Query Cek Log :
+
+SELECT * FROM log_aktivitas;
+
 
